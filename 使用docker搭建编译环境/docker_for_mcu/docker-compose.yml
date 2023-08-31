@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  dev:
+    # build: .
+    image: wangergou2023/docker_for_mcu_build
+    volumes:
+      - .:/myvolume
+    working_dir: /myvolume
+    command: /bin/bash
+    stdin_open: true
+    tty: true
