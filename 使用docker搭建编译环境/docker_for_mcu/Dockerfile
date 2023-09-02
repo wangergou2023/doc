@@ -5,16 +5,9 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # 替换 sources.list
-RUN echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted" > /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal universe" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates universe" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal multiverse" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates multiverse" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security universe" >> /etc/apt/sources.list && \
-    echo "deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security multiverse" >> /etc/apt/sources.list
+RUN sed -i -r 's#http://(archive|security).ubuntu.com#http://mirrors.tuna.tsinghua.edu.cn#g' /etc/apt/sources.list \
+  && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+  && echo 'Asia/Shanghai' >/etc/timezone
 
 # 更新软件包列表
 RUN apt-get update
@@ -23,12 +16,20 @@ RUN apt-get update
 RUN apt-get install -y \
 #基础工具
 vim gcc make \
-#python pip
-python3 python3-pip \
-#网络 ifconfig ip ping
-net-tools iproute2 iputils-ping \
+#语言环境
+locales language-selector-common \
 #MCU 交叉编译 烧录
 gcc-arm-none-eabi openocd
+
+#清理不再需要的软件包，以减少镜像大小
+RUN apt-get autoremove\
+#清除 APT 的缓存和临时文件，进一步减少镜像大小
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
+
+#配置 zh_CN.utf8 语言环境
+RUN localedef -c -f UTF-8 -i zh_CN zh_CN.utf8
+ENV LANG zh_CN.utf8
 
 # 设置工作目录
 WORKDIR /myvolume
