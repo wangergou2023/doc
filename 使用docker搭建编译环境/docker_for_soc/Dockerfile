@@ -29,7 +29,9 @@ locales language-selector-common \
 # lzop LZO压缩库的压缩软件
 bison flex libssl-dev dpkg-dev lzop \
 device-tree-compiler u-boot-tools \
-bc liblz4-tool
+bc liblz4-tool \
+# rootfs
+sudo binfmt-support qemu-user-static
 
 # 解决找不到python python2
 RUN ln -s /usr/bin/python3 /usr/bin/python
