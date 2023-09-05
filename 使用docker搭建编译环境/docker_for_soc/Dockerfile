@@ -29,7 +29,7 @@ locales language-selector-common \
 # lzop LZO压缩库的压缩软件
 bison flex libssl-dev dpkg-dev lzop \
 device-tree-compiler u-boot-tools \
-bc liblz4-tool \
+bc liblz4-tool kmod cpio \
 # rootfs
 sudo binfmt-support qemu-user-static
 
