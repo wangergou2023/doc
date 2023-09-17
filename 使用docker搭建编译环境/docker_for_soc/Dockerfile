@@ -17,7 +17,7 @@ RUN apt-get install -y \
 # 基础工具1
 vim git ssh unzip curl \
 # 基础工具2
-make gcc cmake \
+make gcc cmake bear \
 # python环境
 python3 python3-pip \
 # 语言环境
@@ -28,7 +28,7 @@ locales language-selector-common \
 # libssl-dev OpenSSL通用库
 # lzop LZO压缩库的压缩软件
 bison flex libssl-dev dpkg-dev lzop \
-device-tree-compiler u-boot-tools \
+device-tree-compiler u-boot-tools libncurses-dev \
 bc liblz4-tool kmod cpio \
 # rootfs
 sudo binfmt-support qemu-user-static
