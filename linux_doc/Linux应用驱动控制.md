@@ -637,3 +637,18 @@ echo 1 > /sys/class/pwm/pwmchip1/pwm0/enable
 echo 0 > /sys/class/pwm/pwmchip1/unexport
 ~~~
 
+## 音频
+
+### ALSA框架
+
+## 相机
+
+### V4L2框架
+
+### OpenCV视觉算法库
+
+## 显示
+
+### DRM框架
+
+### Wayland协议
