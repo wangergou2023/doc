@@ -32,6 +32,7 @@
    - **注意**：分配的内存区域将被初始化为零。
    
 2. **`devm_kcalloc`**:
+   
    - **目的**：为设备分配并初始化数组内存。
    - **原型**：
      ```c
@@ -177,12 +178,6 @@ struct file_operations {
 include\linux\of.h
 
 ~~~c
-struct device_node {
-	struct	device_node *parent;     /* 父设备节点指针 */
-	struct	device_node *child;      /* 子设备节点链表的第一个节点 */
-	struct	device_node *sibling;    /* 下一个同级设备节点 */
-};
-
 //为 Linux 内核提供了一个与设备树或 ACPI 描述符交互的抽象机制，而不需要知道具体是哪种描述符
 struct fwnode_handle {
 	struct fwnode_handle *secondary;
@@ -193,6 +188,64 @@ struct fwnode_handle {
 	u8 flags;
 };
 ~~~
+
+~~~c
+struct device_node {
+	const char *name;
+	const char *type;
+	phandle phandle;
+	const char *full_name;
+	struct fwnode_handle fwnode;
+
+	struct	property *properties;
+	struct	property *deadprops;	/* removed properties */
+	struct	device_node *parent;
+	struct	device_node *child;
+	struct	device_node *sibling;
+#if defined(CONFIG_OF_KOBJ)
+	struct	kobject kobj;
+#endif
+	unsigned long _flags;
+	void	*data;
+#if defined(CONFIG_SPARC)
+	const char *path_component_name;
+	unsigned int unique_id;
+	struct of_irq_controller *irq_trans;
+#endif
+};
+~~~
+
+- **name：** 节点中属性为name的值
+- **type：** 节点中属性为device_type的值
+- **full_name：** 节点的名字，在device_node结构体后面放一个字符串，full_name指向它
+- **properties：** 链表，连接该节点的所有属性
+- **parent：** 指向父节点
+- **child：** 指向子节点
+- **sibling：** 指向兄弟节点
+
+
+
+~~~c
+struct of_device_id {
+	char	name[32];
+	char	type[32];
+	char	compatible[128];
+	const void *data;
+};	
+~~~
+
+- **name：** 节点中属性为name的值
+- **type：** 节点中属性为device_type的值
+- **compatible：** 节点的名字，在device_node结构体后面放一个字符串，full_name指向它
+- **data：** 链表，连接该节点的所有属性
+
+
+
+~~~c
+const struct of_device_id *of_match_node(const struct of_device_id *matches, const struct device_node *node);
+~~~
+
+这个函数接受两个参数：match（匹配函数）和np（设备树节点指针）。首先，它会调用match函数，并将np作为参数传递给它，以便进行节点匹配。如果match函数返回真，则表示节点匹配成功，of_match_node函数将返回匹配项的指针。
 
 
 
@@ -235,6 +288,14 @@ Linux内核版本4.19的设备树子系统提供了一系列的API来与设备�
 8. **设备树节点的参考计数**:
     - `of_node_get()`: 增加节点的引用计数。
     - `of_node_put()`: 减少节点的引用计数。
+    
+9. 匹配表
+
+    * of_match_node():
+
+    * ```
+      
+      ```
 
 这只是内核中设备树API的一个子集。有关更详细的信息和其他API，可以参考Linux内核的源代码，特别是`include/linux/of.h`和`drivers/of/`目录。
 
@@ -340,6 +401,17 @@ devm_request_any_context_irq(struct device *dev, unsigned int irq,
 
 ### driver驱动
 
+~~~c
+struct device_driver {
+	const char		*name;
+	const struct of_device_id	*of_match_table;
+	const struct dev_pm_ops *pm;
+};
+
+~~~
+
+
+
 ### bus总线
 
 ### class类
@@ -352,6 +424,7 @@ include\linux\platform_device.h
 
 ### Platform驱动
 
+~~~c
 struct platform_driver {
 		int (*probe)(struct platform_device *);		//平台驱动初始化时会调用该函数
 		int (*remove)(struct platform_device *);	//平台驱动卸载时会调用该函数
@@ -361,12 +434,14 @@ struct platform_driver {
 		struct device_driver driver;			//内置device_driver结构体
 		const struct platform_device_id *id_table;	//该设备驱动支持的设备列表，通过该指针指向platform_device_id类型的数组
 	};
+~~~
 
 * 注册函数：platform_driver_register
 * 完成注册以后再 /sys/bus/platform/drivers目录下会看到 dev.name的文件
 
 ### Platform设备
 
+~~~c
 struct platform_device {
 	const char	*name;				//platform设备名字
 	int		id;				//用于区分设备名相同时将在设备名后面追加该ID
@@ -376,6 +451,7 @@ struct platform_device {
 	const struct platform_device_id	*id_entry;	//用来进行与设备驱动匹配用的id_table表
 	struct pdev_archdata	archdata;		//私有数据，添加自己的东西
 };
+~~~
 
 * 注册函数：platform_add_devices
 * 完成注册以后将会在/sys/bus/platform/devices目录下会看到dev.name的文件夹
@@ -416,6 +492,6 @@ static inline void platform_set_drvdata(struct platform_device *pdev,
 }
 ~~~
 
-![1](H:\git\doc\linux_doc\2.png)
+![1](.\2.png)
 
 ## 
